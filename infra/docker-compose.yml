@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    restart: unless-stopped
+
+  evolution-api:
+    image: atendai/evolution-api:latest
+    ports: ["8080:8080"]
+    environment:
+      - SERVER_URL=http://localhost:8080
+      - AUTHENTICATION_API_KEY=change-me-evolution-key
+      - DATABASE_ENABLED=false
+      - REDIS_ENABLED=true
+      - REDIS_URI=redis://redis:6379
+      - WEBHOOK_GLOBAL_ENABLED=true
+      - WEBHOOK_GLOBAL_URL=http://backend:3001/webhooks/whatsapp
+      - WEBHOOK_EVENTS_MESSAGES_UPSERT=true
+      - WEBHOOK_EVENTS_CONNECTION_UPDATE=true
+      - WEBHOOK_EVENTS_QRCODE_UPDATED=true
+    depends_on: [redis]
+    restart: unless-stopped
+
+  backend:
+    build: ../backend
+    ports: ["3001:3001"]
+    env_file: ../backend/.env
+    environment:
+      - EVOLUTION_BASE_URL=http://evolution-api:8080
+      - REDIS_URL=redis://redis:6379
+    depends_on: [redis, evolution-api]
+    restart: unless-stopped
+
+  frontend:
+    build: ../frontend
+    ports: ["3000:3000"]
+    env_file: ../frontend/.env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    depends_on: [backend]
+    restart: unless-stopped

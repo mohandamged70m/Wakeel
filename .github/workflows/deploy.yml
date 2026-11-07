@@ -1,0 +1,31 @@
+name: Deploy (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deploy target"
+        required: true
+        default: "vps"
+        type: choice
+        options: [vps, railway]
+
+jobs:
+  deploy-vps:
+    if: ${{ github.event.inputs.target == 'vps' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/whatsapp-agent
+            git pull origin main
+            docker compose -f infra/docker-compose.yml up -d --build backend frontend
+            echo "deployed"
+
+  # Railway: use Railway CLI with RAILWAY_TOKEN secret instead.
+  # See https://docs.railway.com/guides/github-actions
