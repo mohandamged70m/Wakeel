@@ -1,7 +1,12 @@
 "use client";
 import { useLocale } from "@/components/LanguageProvider";
 import { t } from "@/lib/i18n";
-import { orders, ordersLast7, chats } from "@/lib/mock";
+import { useOrders } from "@/hooks/useOrders";
+import { useConversations } from "@/hooks/useConversations";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { ErrorState } from "@/components/ui/LoadingSkeleton";
 
 const statusColor: Record<string, string> = {
   new: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
@@ -10,29 +15,54 @@ const statusColor: Record<string, string> = {
   out: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300",
   delivered: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
   cancelled: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300",
+  draft_pending_owner: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
+  ready: "bg-teal-100 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300",
+  rejected: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300",
 };
 
 export default function OverviewPage() {
   const { locale } = useLocale();
   const T = (k: any) => t(locale, k);
 
-  const newToday = orders.filter((o) => o.status === "new").length;
-  const awaiting = orders.filter((o) => o.status === "confirmed" || o.status === "new").length;
-  const outForDelivery = orders.filter((o) => o.status === "out").length;
-  const revenueToday = orders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + o.total, 0);
+  const ordersQ = useOrders();
+  const convsQ = useConversations();
+  const analyticsQ = useAnalytics();
+
+  if (ordersQ.isLoading || convsQ.isLoading || analyticsQ.isLoading) {
+    return (
+      <div className="p-6">
+        <LoadingSkeleton lines={2} />
+        <LoadingSkeleton lines={6} />
+      </div>
+    );
+  }
+  if (ordersQ.isError || convsQ.isError || analyticsQ.isError) {
+    return <ErrorState message="Failed to load overview" />;
+  }
+
+  const orders = ordersQ.data?.items ?? [];
+  const convs = convsQ.data?.items ?? [];
+  const a = analyticsQ.data;
+
+  const newToday = orders.filter((o) => o.status === "draft_pending_owner" || o.status === "new" as never).length;
+  const awaiting = orders.filter((o) => o.status === "draft_pending_owner" || o.status === "confirmed").length;
+  const outForDelivery = orders.filter((o) => o.status === "ready").length;
+  const revenueToday = orders.filter((o) => o.status !== "cancelled" && o.status !== "rejected").reduce((s, o) => s + o.total, 0);
 
   const needsYou = [
-    { label: T("unclearOrders"), value: 2, color: "text-amber-600 dark:text-amber-400" },
-    { label: T("complaints"), value: chats.filter((c) => c.tags.includes("complaint")).length, color: "text-red-600 dark:text-red-400" },
-    { label: T("askedForHuman"), value: chats.filter((c) => c.tags.includes("askedForHuman")).length, color: "text-purple-600 dark:text-purple-400" },
+    { label: T("unclearOrders"), value: 0, color: "text-amber-600 dark:text-amber-400" },
+    { label: T("complaints"), value: convs.filter((c) => c.status === "human").length, color: "text-red-600 dark:text-red-400" },
+    { label: T("askedForHuman"), value: convs.filter((c) => c.status === "human").length, color: "text-purple-600 dark:text-purple-400" },
   ];
   const handled = [
-    { label: T("ordersCaptured"), value: 6 },
-    { label: T("priceQuestions"), value: 14 },
-    { label: T("confirmationsSent"), value: 6 },
+    { label: T("ordersCaptured"), value: orders.length },
+    { label: T("priceQuestions"), value: 0 },
+    { label: T("confirmationsSent"), value: orders.filter((o) => o.status !== "draft_pending_owner").length },
   ];
 
-  const max = Math.max(...ordersLast7);
+  if (orders.length === 0 && convs.length === 0) {
+    return <EmptyState title="No data yet" description="Connect WhatsApp and start receiving orders." />;
+  }
 
   return (
     <div className="p-6">
@@ -43,17 +73,14 @@ export default function OverviewPage() {
             {T("autoReplyOn")} · {T("businessHours")} 09:00–21:00 Cairo
           </p>
         </div>
-        <button className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800">
-          {T("toggleAutoReply")}
-        </button>
       </header>
 
       <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: T("newOrdersToday"), value: newToday, delta: "+3", color: "text-blue-600 dark:text-blue-400" },
-          { label: T("awaitingConfirm"), value: awaiting, delta: "needs you", color: "text-amber-600 dark:text-amber-400" },
+          { label: T("newOrdersToday"), value: a?.conversationsToday ?? newToday, delta: "", color: "text-blue-600 dark:text-blue-400" },
+          { label: T("awaitingConfirm"), value: a?.ordersPending ?? awaiting, delta: "needs you", color: "text-amber-600 dark:text-amber-400" },
           { label: T("outForDelivery"), value: outForDelivery, delta: "on the way", color: "text-purple-600 dark:text-purple-400" },
-          { label: T("revenueToday"), value: `EGP ${revenueToday.toLocaleString()}`, delta: "+8%", color: "text-emerald-600 dark:text-emerald-400" },
+          { label: T("revenueToday"), value: `EGP ${(a?.revenueThisWeek ?? revenueToday).toLocaleString()}`, delta: "", color: "text-emerald-600 dark:text-emerald-400" },
         ].map((k) => (
           <div key={k.label} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{k.label}</p>
@@ -67,13 +94,10 @@ export default function OverviewPage() {
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:col-span-2">
           <h2 className="text-sm font-semibold">{T("ordersLast7")}</h2>
           <div className="mt-4 flex h-40 items-end gap-2">
-            {ordersLast7.map((v, i) => (
+            {[0, 0, 0, 0, 0, 0, 0].map((v, i) => (
               <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                <div
-                  className="w-full rounded-t-md bg-teal-500/80 transition hover:bg-teal-500"
-                  style={{ height: `${(v / max) * 100}%` }}
-                />
-                <span className="text-[10px] text-zinc-400">{["S","M","T","W","T","F","S"][i]}</span>
+                <div className="w-full rounded-t-md bg-teal-500/80" style={{ height: `${Math.max(4, (v + 1) * 4)}%` }} />
+                <span className="text-[10px] text-zinc-400">{["S", "M", "T", "W", "T", "F", "S"][i]}</span>
               </div>
             ))}
           </div>
@@ -121,11 +145,11 @@ export default function OverviewPage() {
               {orders.slice(0, 5).map((o) => (
                 <tr key={o.id} className="border-t border-zinc-100 dark:border-zinc-800">
                   <td className="py-2 font-mono text-xs">{o.id}</td>
-                  <td className="py-2">{o.customer}</td>
-                  <td className="py-2 text-zinc-500 dark:text-zinc-400">{o.items.map((i) => `${i.name} x${i.qty}`).join(", ")}</td>
-                  <td className="py-2 tabular-nums">EGP {o.total}</td>
+                  <td className="py-2">{o.customerId}</td>
+                  <td className="py-2 text-zinc-500 dark:text-zinc-400">—</td>
+                  <td className="py-2 tabular-nums">{o.currency} {o.total}</td>
                   <td className="py-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[o.status]}`}>{T(o.status as any)}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[o.status] || ""}`}>{o.status}</span>
                   </td>
                 </tr>
               ))}
@@ -136,3 +160,5 @@ export default function OverviewPage() {
     </div>
   );
 }
+
+

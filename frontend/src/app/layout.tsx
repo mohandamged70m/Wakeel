@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { QueryProvider } from "@/components/QueryProvider";
+import { RealtimeSync } from "@/components/RealtimeSync";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,7 +35,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <RealtimeSync />
+            {children}
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
