@@ -4,20 +4,20 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* ---- color tokens (light) ---- */
-  --color-bg: #ffffff;
-  --color-bg-subtle: #f4f4f5;
-  --color-surface: #ffffff;
-  --color-surface-raised: #ffffff;
-  --color-border: #e4e4e7;
-  --color-border-strong: #d4d4d8;
-  --color-ink: #18181b;
-  --color-ink-muted: #52525b;
-  --color-ink-subtle: #a1a1aa;
-  --color-accent: #0f766e;
-  --color-accent-hover: #0d6560;
-  --color-accent-soft: #ccfbf1;
-  --color-accent-ink: #ffffff;
+  /* ---- color tokens (light) — cream / ink / burnt orange ---- */
+  --color-bg: #F3EEE3;
+  --color-bg-subtle: #EAE3D6;
+  --color-surface: #FFFFFF;
+  --color-surface-raised: #FFFFFF;
+  --color-border: #D9D2C5;
+  --color-border-strong: #C2B9A8;
+  --color-ink: #111111;
+  --color-ink-muted: #5C564F;
+  --color-ink-subtle: #736C62;
+  --color-accent: #D9541E;
+  --color-accent-hover: #C24A18;
+  --color-accent-soft: #FBE5D8;
+  --color-accent-ink: #FFFFFF;
   --color-danger: #dc2626;
   --color-warning: #d97706;
   --color-success: #16a34a;
@@ -43,24 +43,31 @@
   --radius-full: 9999px;
 
   /* ---- type ---- */
-  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
-  --font-mono: var(--font-geist-mono, ui-monospace, "SFMono-Regular", Menlo, monospace);
+  --font-sans: var(--font-inter, "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
+  --font-arabic: var(--font-ibm-plex-sans-arabic, "IBM Plex Sans Arabic", var(--font-inter, "Inter"), ui-sans-serif, sans-serif);
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+/* Arabic-first: swap primary family when lang/dir is Arabic */
+html[lang="ar"],
+html[dir="rtl"] {
+  --font-sans: var(--font-ibm-plex-sans-arabic, "IBM Plex Sans Arabic", var(--font-inter, "Inter"), ui-sans-serif, sans-serif);
 }
 
 .dark {
-  --color-bg: #09090b;
-  --color-bg-subtle: #18181b;
-  --color-surface: #18181b;
-  --color-surface-raised: #27272a;
-  --color-border: #27272a;
-  --color-border-strong: #3f3f46;
-  --color-ink: #fafafa;
-  --color-ink-muted: #a1a1aa;
-  --color-ink-subtle: #71717a;
-  --color-accent: #2dd4bf;
-  --color-accent-hover: #5eead4;
-  --color-accent-soft: #134e4a;
-  --color-accent-ink: #042f2e;
+  --color-bg: #1A1612;
+  --color-bg-subtle: #242019;
+  --color-surface: #242019;
+  --color-surface-raised: #2E2922;
+  --color-border: #3A342C;
+  --color-border-strong: #4A4339;
+  --color-ink: #F3EEE3;
+  --color-ink-muted: #B8B0A4;
+  --color-ink-subtle: #7A736A;
+  --color-accent: #E86A33;
+  --color-accent-hover: #F07A45;
+  --color-accent-soft: #3A1F12;
+  --color-accent-ink: #111111;
   --color-danger: #f87171;
   --color-warning: #fbbf24;
   --color-success: #4ade80;

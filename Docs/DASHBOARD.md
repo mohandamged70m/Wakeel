@@ -5,7 +5,8 @@ Inspiration: Linear (speed, density, keyboard), Stripe (tables), Attio (CRM inbo
 ## 1. Principles
 
 - Owner uses daily → dark-first with light toggle; `prefers-color-scheme` default.
-- One accent: deep teal `#0F766E` (light) / `#2DD4BF` (dark); neutral zinc otherwise.
+- Palette: cream `#F3EEE3` background, ink `#111111` text, burnt orange `#D9541E` accent (light) / `#E86A33` (dark); warm stone neutrals otherwise.
+- Typography: Inter for English/Latin, IBM Plex Sans Arabic for Arabic; `display: swap`; family switches by `lang`/`dir`.
 - Tabular nums in tables/axes; proportional for KPIs.
 - Space 4/8/12/16/24/32. Cards `rounded-2xl`, hairline borders.
 - 360px support; RTL for Arabic (logical properties, `dir="rtl"`).

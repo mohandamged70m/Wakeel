@@ -10,8 +10,8 @@ const statusColor: Record<string, string> = {
   draft_pending_owner: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300",
   confirmed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
   preparing: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
-  ready: "bg-teal-100 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300",
-  delivered: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+  ready: "bg-accent-soft text-accent dark:bg-accent-soft dark:text-accent",
+  delivered: "bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300",
   cancelled: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300",
   rejected: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300",
 };
@@ -29,9 +29,9 @@ export default function OrdersPage() {
   return (
     <div className="p-6">
       <h1 className="mb-4 text-2xl font-semibold tracking-tight">{T("orders")}</h1>
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
         <table className="w-full text-sm">
-          <thead className="text-xs uppercase text-zinc-500 dark:text-zinc-400">
+          <thead className="text-xs uppercase text-stone-500 dark:text-stone-400">
             <tr>
               <th className="py-2 px-4 text-start">ID</th>
               <th className="py-2 px-4 text-start">{T("customer")}</th>
@@ -42,7 +42,7 @@ export default function OrdersPage() {
           </thead>
           <tbody>
             {items.map((o) => (
-              <tr key={o.id} className="border-t border-zinc-100 dark:border-zinc-800">
+              <tr key={o.id} className="border-t border-stone-100 dark:border-stone-800">
                 <td className="py-2 px-4 font-mono text-xs">{o.id}</td>
                 <td className="py-2 px-4">{o.customerId}</td>
                 <td className="py-2 px-4 tabular-nums">{o.currency} {o.total}</td>

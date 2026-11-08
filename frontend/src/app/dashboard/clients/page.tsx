@@ -19,9 +19,9 @@ export default function ClientsPage() {
   return (
     <div className="p-6">
       <h1 className="mb-4 text-2xl font-semibold tracking-tight">{T("topClients")}</h1>
-      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
         <table className="w-full text-sm">
-          <thead className="text-xs uppercase text-zinc-500 dark:text-zinc-400">
+          <thead className="text-xs uppercase text-stone-500 dark:text-stone-400">
             <tr>
               <th className="py-2 px-4 text-start">{T("customer")}</th>
               <th className="py-2 px-4 text-start">{T("phone" as any) ?? "Phone"}</th>
@@ -29,7 +29,7 @@ export default function ClientsPage() {
           </thead>
           <tbody>
             {items.map((c) => (
-              <tr key={c.id} className="border-t border-zinc-100 dark:border-zinc-800">
+              <tr key={c.id} className="border-t border-stone-100 dark:border-stone-800">
                 <td className="py-2 px-4">{c.name ?? "—"}</td>
                 <td className="py-2 px-4">{c.phone}</td>
               </tr>
