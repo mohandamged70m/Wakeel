@@ -55,6 +55,30 @@ export class CustomersRepository {
     return c;
   }
 
+  async findByPhone(orgId: string, phone: string): Promise<Customer | null> {
+    if (this.supabase.client) {
+      const { data, error } = await this.supabase.client
+        .from("customers")
+        .select()
+        .eq("organization_id", orgId)
+        .eq("phone", phone)
+        .maybeSingle();
+      if (error || !data) return null;
+      const r = data as Record<string, unknown>;
+      return {
+        id: String(r.id),
+        organizationId: String(r.organization_id),
+        phone: String(r.phone),
+        name: (r.name as string | null) ?? null,
+        language: String(r.language ?? "auto"),
+        tags: (r.tags as string[]) ?? [],
+        notes: (r.notes as string | null) ?? null,
+        createdAt: String(r.created_at),
+      };
+    }
+    return [...this.memory.customers.values()].find((c) => c.organizationId === orgId && c.phone === phone) ?? null;
+  }
+
   async findById(orgId: string, id: string): Promise<Customer | null> {
     if (this.supabase.client) {
       const { data, error } = await this.supabase.client

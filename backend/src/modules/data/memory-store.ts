@@ -26,6 +26,7 @@ export class MemoryStore {
   orders = new Map<string, T.Order>();
   orderItems = new Map<string, T.OrderItem>();
   automations = new Map<string, T.Automations>();
+  escalations = new Map<string, T.Escalation>();
 
   // helpers
   id(): string {

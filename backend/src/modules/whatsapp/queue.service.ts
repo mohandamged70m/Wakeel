@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { WhatsAppService } from "./whatsapp.service.js";
+import { AiService } from "../ai/ai.service.js";
 import { Queue, Worker, Job } from "bullmq";
 
 export type ProcessMessagePayload = {
@@ -11,6 +12,8 @@ export type ProcessMessagePayload = {
   text?: string;
   instanceOrPhoneId: string;
   whatsappMessageId?: string;
+  type?: string;
+  mediaUrl?: string | null;
 };
 
 @Injectable()
@@ -22,6 +25,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly config: ConfigService,
     private readonly whatsapp: WhatsAppService,
+    private readonly ai: AiService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -76,12 +80,17 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   private async process(payload: ProcessMessagePayload): Promise<void> {
     this.logger.log(`processing message from ${payload.from}: ${payload.text?.slice(0, 60)}`);
     try {
-      await this.whatsapp.getProvider().sendText(
-        payload.from,
-        "Thanks! We received your message and will get back to you shortly. (auto-reply placeholder)",
-      );
+      const result = await this.ai.processInbound(payload);
+      if (result.reply) {
+        await this.whatsapp.getProvider().sendText(payload.from, result.reply);
+      }
     } catch (err) {
-      this.logger.error(`reply failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.error(`process failed: ${err instanceof Error ? err.message : String(err)}`);
+      try {
+        await this.whatsapp.getProvider().sendText(payload.from, "Sorry, something went wrong. Please try again.");
+      } catch {
+        // ignore
+      }
     }
   }
 }

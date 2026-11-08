@@ -71,6 +71,7 @@ export class WhatsAppController {
         text: m.text,
         instanceOrPhoneId: m.instanceOrPhoneId,
         whatsappMessageId: m.whatsappMessageId,
+        type: m.type || "text",
       };
       await this.queue.enqueue(payload);
       accepted++;

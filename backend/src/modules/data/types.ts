@@ -124,3 +124,14 @@ export type AnalyticsOverview = {
   revenueThisWeek: number;
   avgFirstResponseSec: number;
 };
+
+export type Escalation = {
+  id: string;
+  organizationId: string;
+  conversationId: string | null;
+  customerId: string | null;
+  reason: string;
+  summary: string | null;
+  status: "open" | "resolved";
+  createdAt: string;
+};

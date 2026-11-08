@@ -8,6 +8,7 @@ import { MessagesRepository } from "./repositories/messages.repository.js";
 import { MenuRepository } from "./repositories/menu.repository.js";
 import { OrdersRepository } from "./repositories/orders.repository.js";
 import { AutomationsRepository } from "./repositories/automations.repository.js";
+import { EscalationsRepository } from "./repositories/escalations.repository.js";
 
 @Module({
   imports: [SupabaseModule],
@@ -20,6 +21,7 @@ import { AutomationsRepository } from "./repositories/automations.repository.js"
     MenuRepository,
     OrdersRepository,
     AutomationsRepository,
+    EscalationsRepository,
   ],
   exports: [
     MemoryStore,
@@ -30,6 +32,7 @@ import { AutomationsRepository } from "./repositories/automations.repository.js"
     MenuRepository,
     OrdersRepository,
     AutomationsRepository,
+    EscalationsRepository,
   ],
 })
 export class DataModule {}
