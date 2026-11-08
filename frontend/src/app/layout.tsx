@@ -19,7 +19,7 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "WhatsApp Agent",
+  title: "Wakeel | وكيل",
   description: "WhatsApp order agent for small businesses",
 };
 
